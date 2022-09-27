@@ -1,7 +1,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "Common.h"
+#include "HermitInterpolation.h"
+#include "TestFunctions.h"
 #include "interpolation2.h"
+
+const double (*Functions[8])(double, double) = {f0, f1, f2, f3, f4, f5, f6, f7};
+const double (*DerivativesX[8])(double, double) = {f0x, f1x, f2x, f3x, f4x, f5x, f6x, f7x};
+const double (*DerivativesY[8])(double, double) = {f0y, f1y, f2y, f3y, f4y, f5y, f6y, f7y};
+const double (*DerivativesXY[8])(double, double) = {f0xy, f1xy, f2xy, f3xy, f4xy, f5xy, f6xy, f7xy};
 
 struct interpolation2_ctx_inner {
 	int	method;
@@ -11,19 +18,8 @@ struct interpolation2_ctx_inner {
 	double	*f_a;
     double *X, *Y;
     array4 gamma;
-    double **A, **TMP;
 	double	(*f)(double, double);
 };
-
-static double f1(double x, double y)
-{
-	return x * y;
-}
-
-static double f3(double x, double y)
-{
-	return 1 / (1 + y * y);
-}
 
 interpolation2_ctx interpolation2_create(int method, int n_x, int n_y, int k,
 					 double x_a, double x_b,
@@ -43,11 +39,25 @@ interpolation2_ctx interpolation2_create(int method, int n_x, int n_y, int k,
 	res_ptr->n = n_x + n_y;
 	res_ptr->x_a = x_a;
 	res_ptr->x_b = x_b;
+    res_ptr->y_a = y_a;
+    res_ptr->y_b = y_b;
     res_ptr->gamma = create(n_x, n_y);
 
-	switch (k) {
+    res_ptr->X = (double *) malloc(n_x * sizeof (double ));
+    for (int i = 0; i<n_x; i++)
+    {
+        res_ptr->X[i] = x_a + i*(x_b-x_a)/(n_x-1);
+    }
+
+    res_ptr->Y = (double *) malloc(n_y * sizeof (double ));
+    for (int i = 0; i<n_y; i++)
+    {
+        res_ptr->Y[i] = y_a + i*(y_b-y_a)/(n_y-1);
+    }
+
+	switch (method) {
 	case INTERPOLATION2_F_X:
-		res_ptr->f = f1;
+        HermitInterpolation(Functions[k], DerivativesX[k], DerivativesY[k], DerivativesXY[k], res_ptr->X, res_ptr->Y, res_ptr->gamma);
 		break;
 	default:
 		res_ptr->f = f3;

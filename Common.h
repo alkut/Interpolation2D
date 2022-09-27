@@ -1,6 +1,6 @@
 int LowerBound(double *arr, double x, int n);
 double EvaluatePolynomial(double **arr, double dx, double dy);
-void Calculate(double ** , double ** , double , double );
+void Calculate(double **gamma, double **A, double **TMP, double ** f, double dx, double dy);
 void FindA(double **A, double h);
 
 typedef struct array4

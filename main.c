@@ -6,9 +6,9 @@ int main()
 	interpolation2_ctx	ctx;
 
 	ctx = interpolation2_create(INTERPOLATION2_METHOD1,
-				    10, 7, 1, -3.5, 8.1, 2.8, 3.9);
+				    50, 50, 4, -3.5, 8.1, 2.8, 4.9);
 
-	printf("val: %lf\n", interpolation2_calculate(ctx, 2.7, 3));
+	printf("val: %lf\n", interpolation2_calculate(ctx, 3, 4));
 
 	interpolation2_destroy(ctx);
 

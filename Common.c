@@ -66,14 +66,17 @@ void FindGamma(array4 gamma, double **A, double **TMP, array4 f, double *X, doub
     {
         for (int j = 0; j < gamma.ny - 1; ++j)
         {
-            Calculate(gamma[i][j], f[i][j], X[i + 1] - X[i], Y[j + 1] - Y[j]);
+            Calculate(gamma.array[i][j], A, TMP, f.array[i][j], X[i + 1] - X[i], Y[j + 1] - Y[j]);
         }
     }
 }
 
-void Calculate(double ** gamma, double **A, double **TMP, double ** f, double dx, double dy)
+void Calculate(double **gamma, double **A, double **TMP, double ** f, double dx, double dy)
 {
     FindA(A, dx);
+    for (int i = 0; i < 4; ++i)
+        for (int j = 0; j < 4; ++j)
+            TMP[i][j] = 0.0;
     for (int i = 0; i < 4; ++i)
         for (int j = 0; j < 4; ++j)
             for (int k = 0; k < 4; ++k)

@@ -4,6 +4,7 @@
 #include "HermitInterpolation.h"
 #include "TestFunctions.h"
 #include "interpolation2.h"
+#include "CubicSpline.h"
 
 const double (*Functions[8])(double, double) = {f0, f1, f2, f3, f4, f5, f6, f7};
 const double (*DerivativesX[8])(double, double) = {f0x, f1x, f2x, f3x, f4x, f5x, f6x, f7x};
@@ -60,7 +61,7 @@ interpolation2_ctx interpolation2_create(int method, int n_x, int n_y, int k,
         HermitInterpolation(Functions[k], DerivativesX[k], DerivativesY[k], DerivativesXY[k], res_ptr->X, res_ptr->Y, res_ptr->gamma);
 		break;
 	default:
-		res_ptr->f = f3;
+        CubicSplineInterpolation(Functions[k], res_ptr->X, res_ptr->Y, res_ptr->gamma);
 	}
 
 	return res_ptr;

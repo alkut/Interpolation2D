@@ -124,22 +124,22 @@ static double f5xy(double x, double y)
 
 static double f6(double x, double y)
 {
-    return x * y;
+    return exp(x * x - y * y);
 }
 
 static double f6x(double x, double y)
 {
-    return y;
+    return 2 * x * exp(x * x - y * y);
 }
 
 static double f6y(double x, double y)
 {
-    return x;
+    return - 2 * y * exp(x * x - y * y);
 }
 
 static double f6xy(double x, double y)
 {
-    return 1.0;
+    return - 4 * x * y * exp(x * x - y * y);
 }
 
 static double f7(double x, double y)

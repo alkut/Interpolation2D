@@ -115,3 +115,63 @@ void destroy(array4 arr)
     }
     free(arr.array);
 }
+
+matrix3 create3(int n)
+{
+    matrix3 res;
+    res.n = n;
+    res.main = (double *) malloc(n * sizeof (double ));
+    res.down = (double *) malloc(n * sizeof (double ));
+    res.up = (double *) malloc(n * sizeof (double ));
+    return res;
+}
+
+void gauss(matrix3 m, double **OutMatrix)
+{
+    for (int i = 0; i < m.n; ++i)
+    {
+        double x = m.main[i];
+        m.main[i] /= x;
+        m.up[i] /= x;
+        for (int j = 0; j < m.n; ++j)
+            OutMatrix[i][j] /= x;
+        if (i != m.n - 1) {
+            double y = m.down[i + 1];
+            m.down[i + 1] -= y;
+            m.main[i + 1] -= y * m.up[i];
+            for (int j = 0; j < m.n; ++j)
+                OutMatrix[i + 1][j] -= y * OutMatrix[i][j];
+        }
+    }
+    for (int i = m.n - 1; i > 0; --i)
+    {
+        double x = m.up[i-1];
+        m.up[i-1] -= x;
+        for (int j = 0; j < m.n; ++j)
+            OutMatrix[i-1][j] -= x * OutMatrix[i][j];
+    }
+}
+
+void destroy3(matrix3 m)
+{
+    free(m.main);
+    free(m.down);
+    free(m.up);
+}
+
+double ** alloc(int n, int m)
+{
+    double** res = (double **) malloc(n * sizeof (double *));
+    for (int i = 0; i < n; ++i)
+    {
+        res[i] = (double*) malloc(m * sizeof (double ));
+    }
+    return res;
+}
+
+void dealloc(double** ptr, int n)
+{
+    for (int i = 0; i < n; ++i)
+        free(ptr[i]);
+    free(ptr);
+}

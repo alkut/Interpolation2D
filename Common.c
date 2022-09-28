@@ -54,6 +54,8 @@ array4 create(int nx, int ny)
             for (int k = 0; k < 4; ++k)
             {
                 res.array[i][j][k] = res.memory + i * ny * 16 + j * 16 + k * 4;
+                for (int l = 0; l < 4; ++l)
+                    res.array[i][j][k][l] = 0.0;
             }
         }
     }
@@ -75,15 +77,14 @@ void Calculate(double **gamma, double **A, double **TMP, double ** f, double dx,
 {
     FindA(A, dx);
     for (int i = 0; i < 4; ++i)
-        for (int j = 0; j < 4; ++j)
+        for (int j = 0; j < 4; ++j) {
             TMP[i][j] = 0.0;
-    for (int i = 0; i < 4; ++i)
-        for (int j = 0; j < 4; ++j)
             for (int k = 0; k < 4; ++k)
                 TMP[i][j] += A[i][k] * f[k][j];
+        }
     FindA(A, dy);
     for (int i = 0; i < 4; ++i)
-        for (int j = 0; j < 4; ++j)
+        for (int j = 0; j < 4; ++j) 
             for (int k = 0; k < 4; ++k)
                 gamma[i][j] += TMP[i][k] * A[j][k];
 }

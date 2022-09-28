@@ -14,6 +14,12 @@ typedef struct matrix3
 } matrix3;
 
 matrix3 create3(int n);
+void transpose3(matrix3 m);
+double **transpose(double **m, int nx, int ny);
+double **multiply_left(matrix3 m, double **arr, int nx, int ny);
+double **multiply_right(matrix3 m, double **arr, int nx, int ny);
+void multiply_left_inv(matrix3 m, double **OutMatrix, int ny);
+double **multiply_right_inv(matrix3 m, double **OutMatrix, int nx);
 void gauss(matrix3 m, double **OutMatrix);
 void destroy3(matrix3 m);
 

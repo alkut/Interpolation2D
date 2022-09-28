@@ -126,6 +126,91 @@ matrix3 create3(int n)
     return res;
 }
 
+void transpose3(matrix3 m)
+{
+    double buf;
+    for (int i = 0; i < m.n - 1; ++i)
+    {
+        buf = m.up[i];
+        m.up[i] = m.down[i-1];
+        m.down[i-1] = buf;
+    }
+}
+
+double **transpose(double **m, int nx, int ny)
+{
+    double **res = alloc(ny, nx);
+    for (int i = 0; i < nx; ++i)
+        for (int j = i + 1; j < ny; ++j)
+        {
+            res[j][i] = m[i][j];
+        }
+    return res;
+}
+
+double **multiply_left(matrix3 m, double **arr, int nx, int ny)
+{
+    double **res = alloc(nx, ny);
+    for (int i = 0; i < nx; ++i)
+        for (int j = 0; j < ny; ++j)
+        {
+            res[i][j] = m.main[i] * arr[i][j];
+            if (i != 0)
+                res[i][j] += m.down[i] * arr[i-1][j];
+            if (i != nx - 1)
+                res[i][j] += m.up[i] * arr[i+1][j];
+        }
+
+    return res;
+}
+
+double **multiply_right(matrix3 m, double **arr, int nx, int ny)
+{
+    transpose3(m);
+    double **arrT = transpose(arr, nx, ny);
+    double **res = transpose(multiply_left(m, arrT, ny, nx), ny, nx);
+    transpose3(m);
+    dealloc(arrT, nx);
+    return res;
+}
+
+void multiply_left_inv(matrix3 m, double **OutMatrix, int ny)
+{
+    for (int i = 0; i < m.n; ++i)
+    {
+        double x = m.main[i];
+        m.main[i] /= x;
+        m.up[i] /= x;
+        for (int j = 0; j < ny; ++j)
+            OutMatrix[i][j] /= x;
+        if (i != m.n - 1) {
+            double y = m.down[i + 1];
+            m.down[i + 1] -= y;
+            m.main[i + 1] -= y * m.up[i];
+            for (int j = 0; j < ny; ++j)
+                OutMatrix[i + 1][j] -= y * OutMatrix[i][j];
+        }
+    }
+    for (int i = m.n - 1; i > 0; --i)
+    {
+        double x = m.up[i-1];
+        m.up[i-1] -= x;
+        for (int j = 0; j < ny; ++j)
+            OutMatrix[i-1][j] -= x * OutMatrix[i][j];
+    }
+}
+
+double **multiply_right_inv(matrix3 m, double **OutMatrix, int nx)
+{
+    transpose3(m);
+    double **OutT = transpose(OutMatrix, nx, m.n);
+    multiply_left_inv(m, OutT, nx);
+    double **res = transpose(OutT, m.n, nx);
+    transpose3(m);
+    dealloc(OutT, m.n);
+    return res;
+}
+
 void gauss(matrix3 m, double **OutMatrix)
 {
     for (int i = 0; i < m.n; ++i)

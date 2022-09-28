@@ -5,7 +5,7 @@
 int main()
 {
     int nx = 50, ny = 50;
-    double x = 0.18, y = 0.76845;
+    double x = 0.18, y = 0.3207;
 	interpolation2_ctx	ctx;
 
 	ctx = interpolation2_create(INTERPOLATION2_METHOD1,

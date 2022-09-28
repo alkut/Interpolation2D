@@ -34,38 +34,20 @@ void CubicSplineInterpolation(double (*Function)(double , double ), double *nest
 array4 FindF_(double (*Function)(double , double ), double *nest_x, double *nest_y, array4 gamma)
 {
     array4 res = create(gamma.nx, gamma.ny);
-    double ** Gx = FindG(nest_x, gamma.nx);
-    double ** Gy = FindG(nest_y, gamma.ny);
-
-    double ** F = FindF__(Function, nest_x, nest_y, gamma.nx, gamma.ny);
-
-    double ** Fx = alloc(gamma.nx, gamma.ny);
-    double ** Fy = alloc(gamma.nx, gamma.ny);
-    double ** Fxy = alloc(gamma.nx, gamma.ny);
-
-    for (int i = 0; i < gamma.nx; ++i)
-        for (int j = 0; j < gamma.ny; ++j)
-        {
-            Fx[i][j] = 0;
-            for (int k = 0; k < gamma.nx; ++k)
-                Fx[i][j] += Gx[i][k] * F[k][j];
-        }
-
-    for (int i = 0; i < gamma.ny; ++i)
-        for (int j = 0; j < gamma.nx; ++j)
-        {
-            Fy[i][j] = 0;
-            for (int k = 0; k < gamma.ny; ++k)
-                Fy[i][j] += F[i][k] * Gy[j][k];
-        }
-
-    for (int i = 0; i < gamma.nx; ++i)
-        for (int j = 0; j < gamma.ny; ++j)
-        {
-            Fxy[i][j] = 0;
-            for (int k = 0; k < gamma.ny; ++k)
-                Fxy[i][j] += Fx[i][k] * Gy[j][k];
-        }
+    matrix3 Ax = FindA_(nest_x, gamma.nx);
+    matrix3 Cx = FindC(nest_x, gamma.nx);
+    matrix3 Ay = FindA_(nest_y, gamma.ny);
+    matrix3 Cy = FindC(nest_y, gamma.ny);
+    double **F = FindF__(Function, nest_x, nest_y, gamma.nx, gamma.ny);
+    double **Fx = multiply_left(Cx, F, gamma.nx, gamma.ny);
+    multiply_left_inv(Ax, Fx, gamma.ny);
+    transpose3(Ay);
+    transpose3(Cy);
+    double **tmpFy = multiply_right(Cy, F, gamma.nx, gamma.ny);
+    double **Fy = multiply_right_inv(Ay, tmpFy, gamma.nx);
+    dealloc(tmpFy, gamma.nx);
+    double **Fxy = multiply_left(Cx, Fy, gamma.nx, gamma.ny);
+    multiply_left_inv(Ax, Fxy, gamma.ny);
 
     for (int i = 0; i < gamma.nx - 1; ++i)
         for (int j = 0; j < gamma.ny - 1; ++j)
@@ -92,14 +74,14 @@ array4 FindF_(double (*Function)(double , double ), double *nest_x, double *nest
             t[3][2] = Fx[i+1][j+1];
             t[3][3] = Fxy[i+1][j+1];
         }
-
+    destroy3(Ax);
+    //destroy3(Ay);
+    //destroy3(Cx);
+    //destroy3(Cy);
     dealloc(F, gamma.nx);
-    dealloc(Gx, gamma.nx);
-    dealloc(Gy, gamma.ny);
     dealloc(Fx, gamma.nx);
     dealloc(Fy, gamma.nx);
     dealloc(Fxy, gamma.nx);
-
     return res;
 }
 
@@ -154,3 +136,44 @@ double **FindF__(double (*Function)(double , double ), double *nest_x, double *n
             res[i][j] = Function(nest_x[i], nest_y[j]);
     return res;
 }
+
+matrix3 FindA_(double *nest_x, int nx)
+{
+    matrix3 matrix = create3(nx);
+    matrix.main[0] = 2.0;
+    for (int i = 1; i < nx - 1; ++i)
+        matrix.main[i] = 2.0 * (nest_x[i+1] - nest_x[i-1]);
+    matrix.main[nx-1] = 1.0;
+
+    matrix.up[0] = 1.0;
+    for (int i = 1; i < nx - 1; ++i)
+        matrix.up[i] = (nest_x[i] - nest_x[i-1]);
+    matrix.up[nx-1] = 0.0;
+
+    matrix.down[0] = 0.0;
+    for (int i = 1; i < nx - 1; ++i)
+        matrix.down[i] = (nest_x[i+1] - nest_x[i]);
+    matrix.down[nx-1] = 2.0;
+    return matrix;
+}
+
+matrix3 FindC(double *nest_x, int nx)
+{
+    matrix3 res = create3(nx);
+    res.main[0] = - 3.0 / (nest_x[1] - nest_x[0]);
+    res.up[0] = 3.0 / (nest_x[1] - nest_x[0]);
+
+    for (int i = 1; i < nx - 1; ++i)
+    {
+        res.down[i] = -3.0 * (nest_x[i + 1] - nest_x[i]) / (nest_x[i] - nest_x[i - 1]);
+        res.main[i] = 3.0 * (nest_x[i + 1] - nest_x[i]) / (nest_x[i] - nest_x[i - 1])
+                    -3.0 * (nest_x[i] - nest_x[i - 1]) / (nest_x[i + 1] - nest_x[i]);
+        res.up[i] = 3.0 * (nest_x[i] - nest_x[i - 1]) / (nest_x[i + 1] - nest_x[i]);
+    }
+
+    res.down[nx - 1] = - 3.0 / (nest_x[nx - 1] - nest_x[nx - 2]);
+    res.main[nx - 1] = 3.0 / (nest_x[nx - 1] - nest_x[nx - 2]);
+
+    return res;
+}
+

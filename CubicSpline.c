@@ -75,9 +75,9 @@ array4 FindF_(double (*Function)(double , double ), double *nest_x, double *nest
             t[3][3] = Fxy[i+1][j+1];
         }
     destroy3(Ax);
-    //destroy3(Ay);
-    //destroy3(Cx);
-    //destroy3(Cy);
+    destroy3(Ay);
+    destroy3(Cx);
+    destroy3(Cy);
     dealloc(F, gamma.nx);
     dealloc(Fx, gamma.nx);
     dealloc(Fy, gamma.nx);

@@ -132,8 +132,8 @@ void transpose3(matrix3 m)
     for (int i = 0; i < m.n - 1; ++i)
     {
         buf = m.up[i];
-        m.up[i] = m.down[i-1];
-        m.down[i-1] = buf;
+        m.up[i] = m.down[i+1];
+        m.down[i+1] = buf;
     }
 }
 
@@ -168,9 +168,11 @@ double **multiply_right(matrix3 m, double **arr, int nx, int ny)
 {
     transpose3(m);
     double **arrT = transpose(arr, nx, ny);
-    double **res = transpose(multiply_left(m, arrT, ny, nx), ny, nx);
+    double **tmp = multiply_left(m, arrT, ny, nx);
+    double **res = transpose(tmp, ny, nx);
     transpose3(m);
-    dealloc(arrT, nx);
+    dealloc(tmp, ny);
+    dealloc(arrT, ny);
     return res;
 }
 

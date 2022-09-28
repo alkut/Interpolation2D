@@ -21,6 +21,7 @@ int main()
     printf("val: %lf\n", interpolation2_calculate(ctx2, x, y));
 
 	interpolation2_destroy(ctx);
+    interpolation2_destroy(ctx2);
 
 	return 0;
 }

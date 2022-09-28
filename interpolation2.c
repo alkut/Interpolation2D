@@ -34,7 +34,7 @@ interpolation2_ctx interpolation2_create(int method, int n_x, int n_y, int k,
         return NULL;
     }
 
-	res_ptr = malloc(sizeof(*res_ptr));
+	res_ptr = (interpolation2_ctx)malloc(sizeof(struct interpolation2_ctx_inner));
 
 	res_ptr->method = method;
 	res_ptr->n = n_x + n_y;

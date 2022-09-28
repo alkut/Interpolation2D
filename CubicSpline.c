@@ -93,25 +93,19 @@ array4 FindF_(double (*Function)(double , double ), double *nest_x, double *nest
             t[3][3] = Fxy[i+1][j+1];
         }
 
-    for (int i = 0; i < gamma.nx; ++i)
-        free(Gx[i]);
-    free(Gx);
-    for (int i = 0; i < gamma.ny; ++i)
-        free(Gy[i]);
-    free(Gy);
+    dealloc(F, gamma.nx);
+    dealloc(Gx, gamma.nx);
+    dealloc(Gy, gamma.ny);
     dealloc(Fx, gamma.nx);
     dealloc(Fy, gamma.nx);
     dealloc(Fxy, gamma.nx);
-
 
     return res;
 }
 
 double **FindG(double *nest_x, int nx)
 {
-    double **res = (double **) malloc(nx * sizeof (double *));
-    for (int i = 0; i < nx; ++i)
-        res[i] = (double *)malloc(nx * sizeof (double ));
+    double **res = alloc(nx, nx);
 
     res[0][0] = - 3.0 / (nest_x[1] - nest_x[0]);
     res[0][1] = 3.0 / (nest_x[1] - nest_x[0]);
@@ -153,9 +147,7 @@ double **FindG(double *nest_x, int nx)
 
 double **FindF__(double (*Function)(double , double ), double *nest_x, double *nest_y, int nx, int ny);double **FindF__(double (*Function)(double , double ), double *nest_x, double *nest_y, int nx, int ny)
 {
-    double **res = (double **) malloc(nx * sizeof(double *));
-    for (int i = 0; i < nx; ++i)
-        res[i] = (double *) malloc(ny * sizeof (double ));
+    double **res = alloc(nx, ny);
 
     for (int i = 0; i < nx; ++i)
         for (int j = 0; j < ny; ++j)

@@ -14,6 +14,6 @@ add_executable(6sem_3d_so
         interpolation2.h
         main.c
         TestFunctions.c
-        TestFunctions.h)
+        TestFunctions.h CubicSpline.c CubicSpline.h)
 
 target_link_libraries(6sem_3d_so m)

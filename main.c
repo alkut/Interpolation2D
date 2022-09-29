@@ -6,7 +6,7 @@
 int main(int argc, char* argv[])
 {
     const double (*Functions[8])(double, double) = {f0, f1, f2, f3, f4, f5, f6, f7};
-    int nx = atoi(argv[1]), ny = nx / 2, k = 7;
+    int nx = 50, ny = 100, k = 7;
     double x = 0.76845, y = 0.08, x_a = -0.5, x_b = 0.8, y_a = -1.1, y_b = 0.9;
 
 	interpolation2_ctx	ctx;

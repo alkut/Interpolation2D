@@ -5,6 +5,6 @@ compile:
 test:
 	gcc test.c -Wl,-rpath='./' -L. -linter2 -o test_inter
 run_test:library test
-	time ./test_inter
+	./test_inter
 run_main:library compile
-	time ./main $N
+	./main 

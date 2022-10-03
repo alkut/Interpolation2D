@@ -124,6 +124,12 @@ matrix3 create3(int n)
     res.main = (double *) malloc(n * sizeof (double ));
     res.down = (double *) malloc(n * sizeof (double ));
     res.up = (double *) malloc(n * sizeof (double ));
+    for (int i = 0; i < n; ++i)
+    {
+        res.main[i] = 0.0;
+        res.down[i] = 0.0;
+        res.up[i] = 0.0;
+    }
     return res;
 }
 
@@ -167,10 +173,11 @@ double **multiply_left(matrix3 m, double **arr, int nx, int ny)
 
 double **multiply_right(matrix3 m, double **arr, int nx, int ny)
 {
+    double **arrT, **tmp, **res;
     transpose3(m);
-    double **arrT = transpose(arr, nx, ny);
-    double **tmp = multiply_left(m, arrT, ny, nx);
-    double **res = transpose(tmp, ny, nx);
+    arrT = transpose(arr, nx, ny);
+    tmp = multiply_left(m, arrT, ny, nx);
+    res = transpose(tmp, ny, nx);
     transpose3(m);
     dealloc(tmp, ny);
     dealloc(arrT, ny);
@@ -205,10 +212,11 @@ void multiply_left_inv(matrix3 m, double **OutMatrix, int ny)
 
 double **multiply_right_inv(matrix3 m, double **OutMatrix, int nx)
 {
+    double **OutT, **res;
     transpose3(m);
-    double **OutT = transpose(OutMatrix, nx, m.n);
+    OutT = transpose(OutMatrix, nx, m.n);
     multiply_left_inv(m, OutT, nx);
-    double **res = transpose(OutT, m.n, nx);
+    res = transpose(OutT, m.n, nx);
     transpose3(m);
     dealloc(OutT, m.n);
     return res;
@@ -253,6 +261,8 @@ double ** alloc(int n, int m)
     for (int i = 0; i < n; ++i)
     {
         res[i] = (double*) malloc(m * sizeof (double ));
+        for (int j = 0; j < m; ++j)
+            res[i][j] = 0.0;
     }
     return res;
 }

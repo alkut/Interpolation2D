@@ -1,33 +1,71 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "interpolation2.h"
-#include "TestFunctions.h"
 
-int main(int argc, char* argv[])
+double test(double x, double y);
+
+double test(double x, double y)
 {
-    const double (*Functions[8])(double, double) = {f0, f1, f2, f3, f4, f5, f6, f7};
-    int nx = 50, ny = 100, k = 7;
-    double x = 0.76845, y = 0.08, x_a = -0.5, x_b = 0.8, y_a = -1.1, y_b = 0.9;
+   return 1.0 / (25.0 * (x*x + y*y) + 1);   
+}
+
+double g(double x, double y);
+
+double g(double x, double y)
+{
+    x += 0;
+    y += 0;
+    return 1.0;
+}
+
+double g2(double x, double y);
+
+double g2(double x, double y)
+{
+    x += 0;
+    y += 0;
+    return y;
+}
+
+void Show_error(interpolation2_ctx ctx, double start_pointX, double end_pointX, double start_pointY, double end_pointY, int countX, int countY, double (*function)(double, double));
+
+void Show_error(interpolation2_ctx ctx, double start_pointX, double end_pointX, double start_pointY, double end_pointY, int countX, int countY, double (*function)(double, double))
+{
+    double ans, stepX, stepY, tmp, tmpX, tmpY;
+    ans = 0.0;
+    stepX = (end_pointX - start_pointX) / (countX - 1);
+    stepY = (end_pointY - start_pointY) / (countY - 1);
+    
+    for (int i = 0; i < countX - 1; ++i)
+    {
+        for (int j = 0; j < countY - 1; ++j)
+        {
+        tmpX = start_pointX + i * stepX;
+        tmpY = start_pointY + j * stepY;
+        tmp = fabs(function(tmpX, tmpY) - interpolation2_calculate(ctx, tmpX, tmpY));
+        if (ans < tmp)
+            ans = tmp;
+        }
+    }
+    
+    printf("C0 Norm of error: %10.15e\n", ans);
+    
+}
+
+int main(void)
+{
+    int nx = 5, ny = 5, k = 2;
+    double x_a = -0.5, x_b = 0.8, y_a = -1.1, y_b = 0.9;
 
 	interpolation2_ctx	ctx;
 
 	ctx = interpolation2_create(INTERPOLATION2_METHOD1,
-				    nx, ny, k, x_a, x_b, y_a, y_b);
+				    ny, nx, k, x_a, x_b, y_a, y_b);
 
-	printf("val1: %lf\n", interpolation2_calculate(ctx, x, y));
-
-
-    interpolation2_ctx	ctx2;
-
-    ctx2 = interpolation2_create(INTERPOLATION2_METHOD2,
-                                nx, ny, k, x_a, x_b, y_a, y_b);
-
-    printf("val2: %lf\n", interpolation2_calculate(ctx2, x, y));
-
-    printf("true val: %lf\n", Functions[k](x, y));
+	Show_error(ctx, x_a, x_b, y_a, y_b, 6, 6, g2);
 
 	interpolation2_destroy(ctx);
-    interpolation2_destroy(ctx2);
 
 	return 0;
 }

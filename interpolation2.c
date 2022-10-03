@@ -6,10 +6,10 @@
 #include "interpolation2.h"
 #include "CubicSpline.h"
 
-const double (*Functions[8])(double, double) = {f0, f1, f2, f3, f4, f5, f6, f7};
-const double (*DerivativesX[8])(double, double) = {f0x, f1x, f2x, f3x, f4x, f5x, f6x, f7x};
-const double (*DerivativesY[8])(double, double) = {f0y, f1y, f2y, f3y, f4y, f5y, f6y, f7y};
-const double (*DerivativesXY[8])(double, double) = {f0xy, f1xy, f2xy, f3xy, f4xy, f5xy, f6xy, f7xy};
+double (*Functions[8])(double, double) = {f0, f1, f2, f3, f4, f5, f6, f7};
+double (*DerivativesX[8])(double, double) = {f0x, f1x, f2x, f3x, f4x, f5x, f6x, f7x};
+double (*DerivativesY[8])(double, double) = {f0y, f1y, f2y, f3y, f4y, f5y, f6y, f7y};
+double (*DerivativesXY[8])(double, double) = {f0xy, f1xy, f2xy, f3xy, f4xy, f5xy, f6xy, f7xy};
 
 struct interpolation2_ctx_inner {
 	int	method;
@@ -69,13 +69,14 @@ interpolation2_ctx interpolation2_create(int method, int n_x, int n_y, int k,
 
 double interpolation2_calculate(interpolation2_ctx ctx, double x, double y)
 {
+    int i, j;
     if (x < ctx->x_a || x > ctx->x_b || y < ctx->y_a || y > ctx->y_b)
     {
         fprintf(stderr,"Incorrect input\n");
         return -1;
     }
-    int i = LowerBound(ctx->X, x, ctx->gamma.nx);
-    int j = LowerBound(ctx->Y, y, ctx->gamma.ny);
+    i = LowerBound(ctx->X, x, ctx->gamma.nx);
+    j = LowerBound(ctx->Y, y, ctx->gamma.ny);
 	return EvaluatePolynomial(ctx->gamma.array[i][j], x - ctx->X[i], y - ctx->Y[j]);
 }
 

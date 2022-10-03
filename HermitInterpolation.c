@@ -9,10 +9,12 @@ void HermitInterpolation(double (*function)(double , double ), double (*derivati
 {
 
     double **A, **TMP;
+    double *rawA, *rawTMP;
+    array4 F;
     A = (double **)malloc(4 * sizeof (double *));
     TMP = (double **)malloc(4 * sizeof (double *));
-    double *rawA = (double *) malloc(16 * sizeof (double ));
-    double *rawTMP = (double *) malloc(16 * sizeof (double ));
+    rawA = (double *) malloc(16 * sizeof (double ));
+    rawTMP = (double *) malloc(16 * sizeof (double ));
     for (int i = 0; i < 4; ++i)
     {
         A[i] = rawA + 4 * i;
@@ -21,7 +23,7 @@ void HermitInterpolation(double (*function)(double , double ), double (*derivati
     for (int i = 0; i < 2; ++i)
         for (int j = 0; j < 4; ++j)
             A[i][j] = (double )(i == j);
-    array4 F = FindF(function, derivative_x, derivative_y, derivative_xy, nest_x, nest_y, gamma);
+    F = FindF(function, derivative_x, derivative_y, derivative_xy, nest_x, nest_y, gamma);
     for (int i = 0; i < gamma.nx - 1; ++i)
     {
         for (int j = 0; j < gamma.ny - 1; ++j)
@@ -40,7 +42,8 @@ array4 FindF(double (*function)(double , double ), double (*derivative_x)(double
            double (*derivative_y)(double , double ), double (*derivative_xy)(double , double ),
            double *nest_x, double *nest_y, array4 gamma)
 {
-    array4 res = create(gamma.nx, gamma.ny);
+    array4 res;
+    res = create(gamma.nx, gamma.ny);
     for (int i = 0; i < gamma.nx - 1; ++i)
     {
         for (int j = 0; j < gamma.ny - 1; ++j)

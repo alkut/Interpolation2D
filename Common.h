@@ -33,6 +33,8 @@ typedef struct array4
 
 array4 create(int nx, int ny);
 
+void FindGamma(array4 gamma, double **A, double **TMP, array4 f, double *X, double *Y);
+
 void destroy(array4 arr);
 
 #endif

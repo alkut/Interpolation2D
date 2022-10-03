@@ -1,13 +1,22 @@
 #include "CubicSpline.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 void CubicSplineInterpolation(double (*Function)(double , double ), double *nest_x, double *nest_y, array4 gamma)
 {
-    double **A, **TMP;
+    double **A, **TMP, *rawA, *rawTMP;
+    array4 F;
+    FILE *out;
+    
+    
+    out = fopen("debug.txt", "w");
+    fprintf(out, "1");
+    fclose(out);
+    
     A = (double **)malloc(4 * sizeof (double *));
     TMP = (double **)malloc(4 * sizeof (double *));
-    double *rawA = (double *) malloc(16 * sizeof (double ));
-    double *rawTMP = (double *) malloc(16 * sizeof (double ));
+    rawA = (double *) malloc(16 * sizeof (double ));
+    rawTMP = (double *) malloc(16 * sizeof (double ));
     for (int i = 0; i < 4; ++i)
     {
         A[i] = rawA + 4 * i;
@@ -16,7 +25,19 @@ void CubicSplineInterpolation(double (*Function)(double , double ), double *nest
     for (int i = 0; i < 2; ++i)
         for (int j = 0; j < 4; ++j)
             A[i][j] = (double )(i == j);
-    array4 F = FindF_(Function, nest_x, nest_y, gamma);
+        
+        
+    out = fopen("debug.txt", "w");
+    fprintf(out, "2");
+    fclose(out);
+        
+    F = FindF_(Function, nest_x, nest_y, gamma);
+    
+    out = fopen("debug.txt", "w");
+    fprintf(out, "3");
+    fclose(out);
+    
+    
     for (int i = 0; i < gamma.nx - 1; ++i)
     {
         for (int j = 0; j < gamma.ny - 1; ++j)
@@ -24,6 +45,12 @@ void CubicSplineInterpolation(double (*Function)(double , double ), double *nest
             Calculate(gamma.array[i][j], A, TMP, F.array[i][j], nest_x[i+1] - nest_x[i], nest_y[j+1] - nest_y[j]);
         }
     }
+    
+    out = fopen("debug.txt", "w");
+    fprintf(out, "4");
+    fclose(out);
+    
+    
     free(rawA);
     free(rawTMP);
     free(A);
@@ -33,20 +60,54 @@ void CubicSplineInterpolation(double (*Function)(double , double ), double *nest
 
 array4 FindF_(double (*Function)(double , double ), double *nest_x, double *nest_y, array4 gamma)
 {
-    array4 res = create(gamma.nx, gamma.ny);
-    matrix3 Ax = FindA_(nest_x, gamma.nx);
-    matrix3 Cx = FindC(nest_x, gamma.nx);
-    matrix3 Ay = FindA_(nest_y, gamma.ny);
-    matrix3 Cy = FindC(nest_y, gamma.ny);
-    double **F = FindF__(Function, nest_x, nest_y, gamma.nx, gamma.ny);
-    double **Fx = multiply_left(Cx, F, gamma.nx, gamma.ny);
+    array4 res;
+    matrix3 Ax, Cx, Ay, Cy;
+    double **F, **Fx, **Fy, **tmpFy, **Fxy;
+    FILE *out;
+    
+    res = create(gamma.nx, gamma.ny);
+    Ax = FindA_(nest_x, gamma.nx);
+    Cx = FindC(nest_x, gamma.nx);
+    Ay = FindA_(nest_y, gamma.ny);
+    Cy = FindC(nest_y, gamma.ny);
+    F = FindF__(Function, nest_x, nest_y, gamma.nx, gamma.ny);
+    
+    
+    out = fopen("debug.txt", "w");
+    fprintf(out, "2.1");
+    fclose(out);
+    
+    
+    Fx = multiply_left(Cx, F, gamma.nx, gamma.ny);
     multiply_left_inv(Ax, Fx, gamma.ny);
+    
+    
+    out = fopen("debug.txt", "w");
+    fprintf(out, "2.2");
+    fclose(out);
+    
     transpose3(Ay);
     transpose3(Cy);
-    double **tmpFy = multiply_right(Cy, F, gamma.nx, gamma.ny);
-    double **Fy = multiply_right_inv(Ay, tmpFy, gamma.nx);
+    
+    out = fopen("debug.txt", "w");
+    fprintf(out, "2.3");
+    fclose(out);
+    
+    tmpFy = multiply_right(Cy, F, gamma.nx, gamma.ny);
+    
+    out = fopen("debug.txt", "w");
+    fprintf(out, "2.4");
+    fclose(out);
+    
+    
+    Fy = multiply_right_inv(Ay, tmpFy, gamma.nx);
+    
+    out = fopen("debug.txt", "w");
+    fprintf(out, "2.5");
+    fclose(out);
+    
     dealloc(tmpFy, gamma.nx);
-    double **Fxy = multiply_left(Cx, Fy, gamma.nx, gamma.ny);
+    Fxy = multiply_left(Cx, Fy, gamma.nx, gamma.ny);
     multiply_left_inv(Ax, Fxy, gamma.ny);
 
     for (int i = 0; i < gamma.nx - 1; ++i)
@@ -88,6 +149,7 @@ array4 FindF_(double (*Function)(double , double ), double *nest_x, double *nest
 double **FindG(double *nest_x, int nx)
 {
     double **res = alloc(nx, nx);
+    matrix3 matrix;
 
     res[0][0] = - 3.0 / (nest_x[1] - nest_x[0]);
     res[0][1] = 3.0 / (nest_x[1] - nest_x[0]);
@@ -104,7 +166,7 @@ double **FindG(double *nest_x, int nx)
     res[nx - 1][nx - 1] = 3.0 / (nest_x[nx - 1] - nest_x[nx - 2]);
 
 
-    matrix3 matrix = create3(nx);
+    matrix = create3(nx);
 
     matrix.main[0] = 2.0;
     for (int i = 1; i < nx - 1; ++i)
